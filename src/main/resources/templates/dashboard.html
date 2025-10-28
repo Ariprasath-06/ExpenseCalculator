@@ -136,21 +136,6 @@
             </a>
         </div>
         
-        <div class="filters">
-            <a th:href="@{/dashboard}" class="btn filter-btn" th:classappend="${currentFilter == null ? 'active' : ''}">
-                <i class="fas fa-list"></i> All
-            </a>
-            <a th:href="@{/dashboard?filter=weekly}" class="btn filter-btn" th:classappend="${currentFilter == 'weekly' ? 'active' : ''}">
-                <i class="fas fa-calendar-week"></i> Weekly
-            </a>
-            <a th:href="@{/dashboard?filter=monthly}" class="btn filter-btn" th:classappend="${currentFilter == 'monthly' ? 'active' : ''}">
-                <i class="fas fa-calendar-alt"></i> Monthly
-            </a>
-            <a th:href="@{/dashboard?filter=yearly}" class="btn filter-btn" th:classappend="${currentFilter == 'yearly' ? 'active' : ''}">
-                <i class="fas fa-calendar"></i> Yearly
-            </a>
-        </div>
-        
         <div class="date-filter">
             <form method="get" action="/dashboard" style="display: flex; gap: 15px; align-items: center; justify-content: center; margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.95); border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -192,7 +177,7 @@
                 <thead>
                     <tr>
                         <th><i class="fas fa-file-alt"></i> Description</th>
-                        <th><i class="fas fa-solid fa-indian-rupee-sign"></i> Amount</th>
+                        <th><i class="fas fa-rupee-sign"></i> Amount</th>
                         <th><i class="fas fa-calendar-day"></i> Date</th>
                         <th><i class="fas fa-tag"></i> Category</th>
                         <th><i class="fas fa-cog"></i> Action</th>
@@ -227,7 +212,27 @@
         // Add logout functionality
         function logout() {
             localStorage.removeItem('token');
+            document.cookie = 'auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
             window.location.href = '/home';
+        }
+        
+        // Add logout button to header
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.querySelector('.header');
+            if (header) {
+                const logoutBtn = document.createElement('a');
+                logoutBtn.href = '#';
+                logoutBtn.className = 'btn btn-secondary';
+                logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+                logoutBtn.onclick = logout;
+                logoutBtn.style.background = 'linear-gradient(45deg, #74b9ff, #0984e3)';
+                logoutBtn.style.marginLeft = '10px';
+                header.appendChild(logoutBtn);
+            }
+        });
+    </script>
+</body>
+</html>ion.href = '/home';
         }
         
         // Add logout button to header

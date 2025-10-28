@@ -31,7 +31,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            username = jwtUtil.getUsernameFromToken(token);
+            try {
+                username = jwtUtil.getUsernameFromToken(token);
+            } catch (Exception e) {
+                token = null;
+            }
         } else {
             // Check cookies for token
             jakarta.servlet.http.Cookie[] cookies = request.getCookies();
@@ -39,7 +43,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 for (jakarta.servlet.http.Cookie cookie : cookies) {
                     if ("auth-token".equals(cookie.getName())) {
                         token = cookie.getValue();
-                        username = jwtUtil.getUsernameFromToken(token);
+                        try {
+                            username = jwtUtil.getUsernameFromToken(token);
+                        } catch (Exception e) {
+                            token = null;
+                        }
                         break;
                     }
                 }
