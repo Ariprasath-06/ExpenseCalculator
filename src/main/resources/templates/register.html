@@ -157,6 +157,8 @@
                 
                 if (response.ok) {
                     localStorage.setItem('token', data.token);
+                    // Set authorization header for future requests
+                    document.cookie = `auth-token=${data.token}; path=/`;
                     window.location.href = '/dashboard';
                 } else {
                     document.getElementById('errorMessage').textContent = data.error;

@@ -68,6 +68,14 @@ public class AuthController {
                 registerRequest.get("email")
             );
             
+            // Auto-login after registration
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    user.getUsername(),
+                    registerRequest.get("password")
+                )
+            );
+            
             String token = jwtUtil.generateToken(user.getUsername());
             return ResponseEntity.ok(Map.of("token", token));
         } catch (Exception e) {
