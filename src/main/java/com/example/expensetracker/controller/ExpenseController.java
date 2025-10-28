@@ -24,6 +24,11 @@ public class ExpenseController {
     }
     
     @GetMapping("/")
+    public String home() {
+        return "redirect:/home";
+    }
+    
+    @GetMapping("/dashboard")
     public String dashboard(Model model, @RequestParam(required = false) String filter) {
         logger.info("Dashboard accessed with filter: {}", filter);
         
@@ -51,13 +56,13 @@ public class ExpenseController {
     public String addExpense(@ModelAttribute Expense expense) {
         logger.info("Processing add expense request");
         expenseService.saveExpense(expense);
-        return "redirect:/";
+        return "redirect:/dashboard";
     }
     
     @GetMapping("/delete/{id}")
     public String deleteExpense(@PathVariable Long id) {
         logger.info("Processing delete expense request for ID: {}", id);
         expenseService.deleteExpense(id);
-        return "redirect:/";
+        return "redirect:/dashboard";
     }
 }

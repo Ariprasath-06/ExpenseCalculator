@@ -72,6 +72,14 @@ public class ExpenseService {
     }
     
     public User getCurrentUser() {
+        org.springframework.security.core.Authentication authentication = 
+            org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            return (User) authentication.getPrincipal();
+        }
+        
+        // Fallback for demo user
         Optional<User> user = userRepository.findByUsername("demo");
         if (user.isEmpty()) {
             User newUser = new User();
