@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>💰 Expense Tracker Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .btn {
+            padding: 12px 24px;
+            margin: 5px;
+            text-decoration: none;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255,107,107,0.4);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,107,107,0.6);
+        }
+        .filters {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .filter-btn {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            color: white;
+        }
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(116,185,255,0.4);
+        }
+        .filter-btn.active {
+            background: linear-gradient(45deg, #00b894, #00a085);
+            box-shadow: 0 6px 20px rgba(0,184,148,0.4);
+        }
+        .chart-container {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .table-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f1f2f6;
+        }
+        tr:hover {
+            background: rgba(116,185,255,0.1);
+        }
+        .btn-delete {
+            background: linear-gradient(45deg, #e17055, #d63031);
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+        .btn-delete:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(214,48,49,0.4);
+        }
+        .amount {
+            font-weight: bold;
+            color: #00b894;
+            font-size: 1.1em;
+        }
+        .category-tag {
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> Expense Tracker</h1>
+            <a href="/add-expense" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Expense
+            </a>
+        </div>
+        
+        <div class="filters">
+            <a th:href="@{/}" class="btn filter-btn" th:classappend="${currentFilter == null ? 'active' : ''}">
+                <i class="fas fa-list"></i> All
+            </a>
+            <a th:href="@{/?filter=weekly}" class="btn filter-btn" th:classappend="${currentFilter == 'weekly' ? 'active' : ''}">
+                <i class="fas fa-calendar-week"></i> Weekly
+            </a>
+            <a th:href="@{/?filter=monthly}" class="btn filter-btn" th:classappend="${currentFilter == 'monthly' ? 'active' : ''}">
+                <i class="fas fa-calendar-alt"></i> Monthly
+            </a>
+            <a th:href="@{/?filter=yearly}" class="btn filter-btn" th:classappend="${currentFilter == 'yearly' ? 'active' : ''}">
+                <i class="fas fa-calendar"></i> Yearly
+            </a>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="monthlyChart"></canvas>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-file-alt"></i> Description</th>
+                        <th><i class="fas fa-solid fa-indian-rupee-sign"></i> Amount</th>
+                        <th><i class="fas fa-calendar-day"></i> Date</th>
+                        <th><i class="fas fa-tag"></i> Category</th>
+                        <th><i class="fas fa-cog"></i> Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="expense : ${expenses}">
+                        <td th:text="${expense.description}"></td>
+                        <td class="amount" th:text="'₹' + ${expense.amount}"></td>
+                        <td th:text="${expense.date}"></td>
+                        <td><span class="category-tag" th:text="${expense.category}"></span></td>
+                        <td>
+                            <a th:href="@{/delete/{id}(id=${expense.id})}" class="btn btn-delete">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script th:inline="javascript">
+        const monthlyData = /*[[${monthlyData}]]*/ [];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const labels = [];
+        const data = [];
+        
+        monthlyData.forEach(item => {
+            labels.push(months[item[0] - 1]);
+            data.push(item[1]);
+        });
+        
+        new Chart(document.getElementById('monthlyChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Monthly Expenses (₹)',
+                    data: data,
+                    backgroundColor: [
+                        'rgba(255, 107, 107, 0.8)',
+                        'rgba(78, 205, 196, 0.8)',
+                        'rgba(116, 185, 255, 0.8)',
+                        'rgba(162, 155, 254, 0.8)',
+                        'rgba(255, 195, 110, 0.8)',
+                        'rgba(255, 107, 107, 0.8)',
+                        'rgba(78, 205, 196, 0.8)',
+                        'rgba(116, 185, 255, 0.8)',
+                        'rgba(162, 155, 254, 0.8)',
+                        'rgba(255, 195, 110, 0.8)',
+                        'rgba(255, 107, 107, 0.8)',
+                        'rgba(78, 205, 196, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 107, 107, 1)',
+                        'rgba(78, 205, 196, 1)',
+                        'rgba(116, 185, 255, 1)',
+                        'rgba(162, 155, 254, 1)',
+                        'rgba(255, 195, 110, 1)',
+                        'rgba(255, 107, 107, 1)',
+                        'rgba(78, 205, 196, 1)',
+                        'rgba(116, 185, 255, 1)',
+                        'rgba(162, 155, 254, 1)',
+                        'rgba(255, 195, 110, 1)',
+                        'rgba(255, 107, 107, 1)',
+                        'rgba(78, 205, 196, 1)'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '📊 Monthly Expense Overview',
+                        font: { size: 18, weight: 'bold' },
+                        color: '#2c3e50'
+                    },
+                    legend: {
+                        labels: {
+                            color: '#2c3e50',
+                            font: { weight: 'bold' }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.1)' },
+                        ticks: { color: '#2c3e50', font: { weight: 'bold' } }
+                    },
+                    x: {
+                        grid: { color: 'rgba(0,0,0,0.1)' },
+                        ticks: { color: '#2c3e50', font: { weight: 'bold' } }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
