@@ -29,16 +29,19 @@ public class ExpenseController {
     }
     
     @GetMapping("/dashboard")
-    public String dashboard(Model model, @RequestParam(required = false) String filter) {
-        logger.info("Dashboard accessed with filter: {}", filter);
+    public String dashboard(Model model, 
+                          @RequestParam(required = false) String filter,
+                          @RequestParam(required = false) Integer month,
+                          @RequestParam(required = false) Integer year) {
+        logger.info("Dashboard accessed with filter: {}, month: {}, year: {}", filter, month, year);
         
         User currentUser = expenseService.getCurrentUser();
-        List<Expense> expenses = expenseService.getFilteredExpenses(filter, currentUser);
-        List<Object[]> monthlyData = expenseService.getMonthlyExpenseData(filter, currentUser);
+        List<Expense> expenses = expenseService.getFilteredExpenses(filter, month, year, currentUser);
         
         model.addAttribute("expenses", expenses);
-        model.addAttribute("monthlyData", monthlyData);
         model.addAttribute("currentFilter", filter);
+        model.addAttribute("selectedMonth", month);
+        model.addAttribute("selectedYear", year);
         model.addAttribute("currentUser", currentUser.getUsername());
         
         logger.info("Dashboard rendered successfully for user: {}", currentUser.getUsername());

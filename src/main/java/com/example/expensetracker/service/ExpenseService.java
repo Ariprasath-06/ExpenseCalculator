@@ -25,10 +25,16 @@ public class ExpenseService {
     @Autowired
     private UserRepository userRepository;
     
-    public List<Expense> getFilteredExpenses(String filter, User user) {
+    public List<Expense> getFilteredExpenses(String filter, Integer month, Integer year, User user) {
         LocalDate now = LocalDate.now();
         
-        if ("weekly".equals(filter)) {
+        if (month != null && year != null) {
+            LocalDate startDate = LocalDate.of(year, month, 1);
+            LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+            List<Expense> expenses = expenseRepository.findByUserAndDateBetween(user, startDate, endDate);
+            logger.debug("Retrieved {} expenses for {}/{} for user {}", expenses.size(), month, year, user.getUsername());
+            return expenses;
+        } else if ("weekly".equals(filter)) {
             LocalDate startOfWeek = now.with(WeekFields.of(Locale.getDefault()).dayOfWeek(), 1);
             List<Expense> expenses = expenseRepository.findByUserAndDateBetween(user, startOfWeek, now);
             logger.debug("Retrieved {} weekly expenses for user {}", expenses.size(), user.getUsername());
