@@ -25,7 +25,7 @@ public class ExpenseController {
     
     @GetMapping("/")
     public String home() {
-        return "redirect:/home";
+        return "home";
     }
     
     @GetMapping("/dashboard")
