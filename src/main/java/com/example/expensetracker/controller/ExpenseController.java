@@ -1,6 +1,7 @@
 package com.example.expensetracker.controller;
 
 import com.example.expensetracker.model.Expense;
+import com.example.expensetracker.model.User;
 import com.example.expensetracker.service.ExpenseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,14 +27,16 @@ public class ExpenseController {
     public String dashboard(Model model, @RequestParam(required = false) String filter) {
         logger.info("Dashboard accessed with filter: {}", filter);
         
-        List<Expense> expenses = expenseService.getFilteredExpenses(filter);
-        List<Object[]> monthlyData = expenseService.getMonthlyExpenseData();
+        User currentUser = expenseService.getCurrentUser();
+        List<Expense> expenses = expenseService.getFilteredExpenses(filter, currentUser);
+        List<Object[]> monthlyData = expenseService.getMonthlyExpenseData(filter, currentUser);
         
         model.addAttribute("expenses", expenses);
         model.addAttribute("monthlyData", monthlyData);
         model.addAttribute("currentFilter", filter);
+        model.addAttribute("currentUser", currentUser.getUsername());
         
-        logger.info("Dashboard rendered successfully");
+        logger.info("Dashboard rendered successfully for user: {}", currentUser.getUsername());
         return "dashboard";
     }
     
