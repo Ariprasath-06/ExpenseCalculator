@@ -1,2 +1,2 @@
 #!/bin/bash
-mvn clean package -DskipTests
+echo "Docker build will handle Maven build"
