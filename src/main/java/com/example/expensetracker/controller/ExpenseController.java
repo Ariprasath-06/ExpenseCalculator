@@ -36,6 +36,11 @@ public class ExpenseController {
         logger.info("Dashboard accessed with filter: {}, month: {}, year: {}", filter, month, year);
         
         User currentUser = expenseService.getCurrentUser();
+        if (currentUser == null) {
+            logger.warn("Unauthenticated user trying to access dashboard, redirecting to home");
+            return "redirect:/home";
+        }
+        
         List<Expense> expenses = expenseService.getFilteredExpenses(filter, month, year, currentUser);
         
         model.addAttribute("expenses", expenses);
@@ -51,6 +56,10 @@ public class ExpenseController {
     @GetMapping("/add-expense")
     public String showAddForm(Model model) {
         logger.info("Add expense form requested");
+        User currentUser = expenseService.getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/home";
+        }
         model.addAttribute("expense", new Expense());
         return "add-expense";
     }
@@ -58,6 +67,10 @@ public class ExpenseController {
     @PostMapping("/add")
     public String addExpense(@ModelAttribute Expense expense) {
         logger.info("Processing add expense request");
+        User currentUser = expenseService.getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/home";
+        }
         expenseService.saveExpense(expense);
         return "redirect:/dashboard";
     }

@@ -78,27 +78,31 @@ public class ExpenseService {
     }
     
     public User getCurrentUser() {
-        org.springframework.security.core.Authentication authentication = 
-            org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        
-        if (authentication != null && authentication.getPrincipal() instanceof User) {
-            return (User) authentication.getPrincipal();
+        try {
+            org.springframework.security.core.Authentication authentication = 
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            
+            if (authentication != null && authentication.isAuthenticated() && 
+                !"anonymousUser".equals(authentication.getPrincipal()) &&
+                authentication.getPrincipal() instanceof User) {
+                return (User) authentication.getPrincipal();
+            }
+            
+            // Return null for unauthenticated users
+            return null;
+        } catch (Exception e) {
+            logger.error("Error getting current user: {}", e.getMessage());
+            return null;
         }
-        
-        // Fallback for demo user
-        Optional<User> user = userRepository.findByUsername("demo");
-        if (user.isEmpty()) {
-            User newUser = new User();
-            newUser.setUsername("demo");
-            newUser.setEmail("demo@example.com");
-            return userRepository.save(newUser);
-        }
-        return user.get();
     }
     
     public Expense saveExpense(Expense expense) {
-        expense.setUser(getCurrentUser());
-        logger.info("Saving expense: {} - ₹{} on {} for user {}", expense.getDescription(), expense.getAmount(), expense.getDate(), expense.getUser().getUsername());
+        User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+        expense.setUser(currentUser);
+        logger.info("Saving expense: {} - ₹{} on {} for user {}", expense.getDescription(), expense.getAmount(), expense.getDate(), currentUser.getUsername());
         try {
             Expense savedExpense = expenseRepository.save(expense);
             logger.info("Expense saved successfully with ID: {}", savedExpense.getId());
