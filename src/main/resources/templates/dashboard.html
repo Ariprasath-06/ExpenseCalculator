@@ -213,24 +213,4 @@
         }
     </script>
 </body>
-</html>n=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
-            window.location.href = '/home';
-        }
-        
-        // Add logout button to header
-        document.addEventListener('DOMContentLoaded', function() {
-            const header = document.querySelector('.header');
-            if (header) {
-                const logoutBtn = document.createElement('a');
-                logoutBtn.href = '#';
-                logoutBtn.className = 'btn btn-secondary';
-                logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
-                logoutBtn.onclick = logout;
-                logoutBtn.style.background = 'linear-gradient(45deg, #74b9ff, #0984e3)';
-                logoutBtn.style.marginLeft = '10px';
-                header.appendChild(logoutBtn);
-            }
-        });
-    </script>
-</body>
 </html>
