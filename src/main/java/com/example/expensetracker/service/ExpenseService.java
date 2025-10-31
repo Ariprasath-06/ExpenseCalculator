@@ -123,4 +123,10 @@ public class ExpenseService {
             throw e;
         }
     }
+    
+    public java.math.BigDecimal calculateTotalAmount(List<Expense> expenses) {
+        return expenses.stream()
+                .map(Expense::getAmount)
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+    }
 }

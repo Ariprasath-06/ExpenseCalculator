@@ -42,8 +42,10 @@ public class ExpenseController {
         }
         
         List<Expense> expenses = expenseService.getFilteredExpenses(filter, month, year, currentUser);
+        java.math.BigDecimal totalAmount = expenseService.calculateTotalAmount(expenses);
         
         model.addAttribute("expenses", expenses);
+        model.addAttribute("totalAmount", totalAmount);
         model.addAttribute("currentFilter", filter);
         model.addAttribute("selectedMonth", month);
         model.addAttribute("selectedYear", year);

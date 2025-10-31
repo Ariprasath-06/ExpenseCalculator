@@ -177,6 +177,39 @@
             </form>
         </div>
         
+        <div class="total-section" style="background: rgba(255,255,255,0.95); padding: 20px; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); margin-bottom: 30px; text-align: center;">
+            <h2 style="color: #2c3e50; margin-bottom: 10px;">
+                <i class="fas fa-calculator"></i> Total Expenses
+            </h2>
+            <div style="font-size: 2.5em; font-weight: bold; color: #00b894; background: linear-gradient(45deg, #00b894, #00a085); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                ₹<span th:text="${totalAmount ?: 0}">0</span>
+            </div>
+            <p style="color: #7f8c8d; margin-top: 10px;">
+                <span th:if="${selectedMonth != null and selectedYear != null}">
+                    Total for 
+                    <span th:switch="${selectedMonth}">
+                        <span th:case="1">January</span>
+                        <span th:case="2">February</span>
+                        <span th:case="3">March</span>
+                        <span th:case="4">April</span>
+                        <span th:case="5">May</span>
+                        <span th:case="6">June</span>
+                        <span th:case="7">July</span>
+                        <span th:case="8">August</span>
+                        <span th:case="9">September</span>
+                        <span th:case="10">October</span>
+                        <span th:case="11">November</span>
+                        <span th:case="12">December</span>
+                    </span>
+                    <span th:text="${selectedYear}"></span>
+                </span>
+                <span th:if="${currentFilter == 'weekly'}">Total for this week</span>
+                <span th:if="${currentFilter == 'monthly'}">Total for this month</span>
+                <span th:if="${currentFilter == 'yearly'}">Total for this year</span>
+                <span th:if="${currentFilter == null and selectedMonth == null}">Total for all expenses</span>
+            </p>
+        </div>
+        
         <div class="table-container">
             <table>
                 <thead>
